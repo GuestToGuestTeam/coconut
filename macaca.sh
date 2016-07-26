@@ -44,8 +44,8 @@ then
     
         autosource "post_install"
 
-      echo $COCO_VERSION > $COCONUT_VERSION_FILE
+        echo $COCO_VERSION > $COCONUT_VERSION_FILE
 
-	    rm -f $COCONUT_BASE_PATH/$COCO_VERSION.zip
+        rm -f $COCONUT_BASE_PATH/$COCO_VERSION.zip
     fi
 fi
