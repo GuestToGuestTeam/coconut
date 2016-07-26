@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# Git hook exemple
+# It's used to build a coconut and put it on a s3 bucket
+#
+# $1 -- Name of the remote to which the push is being done
+# $2 -- URL to which the push is being done
+#   <local ref> <local sha1> <remote ref> <remote sha1>
+
+remote="$1"
+url="$2"
+
+S3BUCKET="s3://BUCKET/PATH.DIR"
+
+IFS=' '
+while read local_ref local_sha remote_ref remote_sha
+do
+    BRANCH=$(echo $remote_ref | awk -F/ '{print $NF}')
+    
+    if [ "$BRANCH" = "master" ]
+    then
+        FILENAME="/tmp/$BRANCH.$$.zip"
+        git archive --output="$FILENAME" $BRANCH
+
+        s3cmd put $FILENAME $S3BUCKET/$local_sha.zip
+
+        echo > /tmp/config.json
+
+        echo "{"                                                   >> /tmp/config.json
+        echo "\"deployed\": \"$local_sha\","                       >> /tmp/config.json
+        echo "\"default\": \"$BRANCH\","                           >> /tmp/config.json
+        echo "\"s3\": \"$S3BUCKET\""  >> /tmp/config.json
+        echo "}"                                                   >> /tmp/config.json
+
+        s3cmd put /tmp/config.json $S3BUCKET/config.json
+    fi
+done
+
+exit 0
