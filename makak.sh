@@ -7,8 +7,9 @@ AWS_REGION="eu-central-1"
 COCONUT_VERSION_FILE="/var/app/coco.version"
 
 function autosource {
-    EXECUTE_DIR=$COCONUT_BASE_PATH/.coconut/$1/*
-    if [ -d "$EXECUTE_DIR" ]; then
+    COCO_SOURCE_PATH="$COCONUT_CURRENT_APP_PATH/.coconut/$1"
+    if [ -d "$COCO_SOURCE_PATH" ]; then
+        EXECUTE_DIR=$COCO_SOURCE_PATH/*
         for f in $EXECUTE_DIR
         do
             echo "PROCESSING $f FILE..."
@@ -34,18 +35,20 @@ then
 
     if [ "$COCO_VERSION" != "$DEPLOYED_VERSION" ]
     then
+        COCONUT_CURRENT_APP_PATH="$COCONUT_BASE_PATH/$COCO_VERSION"
+
         echo "DEPLOY NEW APPLICATION VERSION: $COCO_VERSION (OLD VERSION: $DEPLOYED_VERSION)"
         aws --region="$AWS_REGION" s3 cp "$COCO_PATH/$COCO_VERSION.zip" "$COCONUT_BASE_PATH/"
 
         cd $COCONUT_BASE_PATH && unzip -o -d $COCO_VERSION $COCO_VERSION.zip && cd $COCO_VERSION
         
         autosource "pre_install"
-        ln -s $COCONUT_BASE_PATH/$COCO_VERSION $COCONUT_BASE_PATH/prepare && mv $COCONUT_BASE_PATH/prepare $COCONUT_BASE_PATH/current
+
+        ln -s -f $COCONUT_CURRENT_APP_PATH $COCONUT_BASE_PATH/current
     
         autosource "post_install"
 
         echo $COCO_VERSION > $COCONUT_VERSION_FILE
-
         rm -f $COCONUT_BASE_PATH/$COCO_VERSION.zip
     fi
 fi
