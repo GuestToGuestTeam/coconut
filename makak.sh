@@ -32,6 +32,7 @@ if [ -f "$COCONUT_BASE_PATH/config.json" ]
 then
     COCO_VERSION=$(cat $COCONUT_BASE_PATH/config.json | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["deployed"]')
     COCO_PATH=$(cat $COCONUT_BASE_PATH/config.json | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["s3"]')
+    COCONUT_ENV=$(cat $COCONUT_BASE_PATH/config.json | python -c 'import json,sys;obj=json.load(sys.stdin);print obj["env"]')
 
     if [ "$COCO_VERSION" != "$DEPLOYED_VERSION" ]
     then
