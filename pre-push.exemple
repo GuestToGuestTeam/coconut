@@ -17,22 +17,22 @@ while read local_ref local_sha remote_ref remote_sha
 do
     BRANCH=$(echo $remote_ref | awk -F/ '{print $NF}')
     
-    if [ "$BRANCH" = "master" ]
+    if [ "$BRANCH" = "master" ] || [ "$BRANCH" = "develop" ]
     then
         FILENAME="/tmp/$BRANCH.$$.zip"
         git archive --output="$FILENAME" $BRANCH
 
-        s3cmd put $FILENAME $S3BUCKET/$local_sha.zip
+        s3cmd put $FILENAME $S3BUCKET/$BRANCH/$local_sha.zip
 
         echo > /tmp/config.json
 
         echo "{"                                                   >> /tmp/config.json
         echo "\"deployed\": \"$local_sha\","                       >> /tmp/config.json
         echo "\"default\": \"$BRANCH\","                           >> /tmp/config.json
-        echo "\"s3\": \"$S3BUCKET\""  >> /tmp/config.json
+        echo "\"s3\": \"$S3BUCKET/$BRANCH\""  >> /tmp/config.json
         echo "}"                                                   >> /tmp/config.json
 
-        s3cmd put /tmp/config.json $S3BUCKET/config.json
+        s3cmd put /tmp/config.json $S3BUCKET/$BRANCH/config.json
     fi
 done
 
