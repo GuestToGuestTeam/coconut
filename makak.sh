@@ -45,7 +45,7 @@ then
         
         autosource "pre_install"
 
-        ln -s -f $COCONUT_CURRENT_APP_PATH $COCONUT_BASE_PATH/current
+        ln -sfn $COCONUT_CURRENT_APP_PATH $COCONUT_BASE_PATH/current
     
         autosource "post_install"
 
